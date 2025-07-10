@@ -8,7 +8,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.companystark.ecommerce.dto.CategoryDTO;
 import com.companystark.ecommerce.dto.ProductDTO;
+import com.companystark.ecommerce.dto.ProductMinDTO;
+import com.companystark.ecommerce.entities.Category;
 import com.companystark.ecommerce.entities.Product;
 import com.companystark.ecommerce.repositories.ProductRepository;
 import com.companystark.ecommerce.services.exceptions.DatabaseException;
@@ -31,9 +34,9 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ProductDTO> findAll(Pageable pageable) {
-	Page<Product> result = repository.findAll(pageable);
-	return result.map(x -> new ProductDTO(x));
+    public Page<ProductMinDTO> findAll(String name, Pageable pageable) {
+	Page<Product> result = repository.searchByName(name, pageable);
+	return result.map(x -> new ProductMinDTO(x));
     }
 
     @Transactional
@@ -76,6 +79,13 @@ public class ProductService {
 	entity.setDescription(dto.getDescription());
 	entity.setPrice(dto.getPrice());
 	entity.setImgUrl(dto.getImgUrl());
+
+	entity.getCategories().clear();
+	for (CategoryDTO catDto : dto.getCategories()) {
+	    Category cat = new Category();
+	    cat.setId(catDto.getId());
+	    entity.getCategories().add(cat);
+	}
     }
 
 }
