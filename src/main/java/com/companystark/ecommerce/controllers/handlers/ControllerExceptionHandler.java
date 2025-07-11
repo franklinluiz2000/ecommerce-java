@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import com.companystark.ecommerce.dto.CustomErrorDTO;
 import com.companystark.ecommerce.dto.ValidationErrorDTO;
 import com.companystark.ecommerce.services.exceptions.DatabaseException;
+import com.companystark.ecommerce.services.exceptions.ForbiddenException;
 import com.companystark.ecommerce.services.exceptions.ResourceNotFoundException;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,7 +35,7 @@ public class ControllerExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<CustomErrorDTO> methodArgumentNotValid(MethodArgumentNotValidException e,
+    public ResponseEntity<CustomErrorDTO> methodArgumentNotValidation(MethodArgumentNotValidException e,
 	    HttpServletRequest request) {
 	HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
 	ValidationErrorDTO err = new ValidationErrorDTO(Instant.now(), status.value(), "Dados inválidos",
@@ -45,4 +46,10 @@ public class ControllerExceptionHandler {
 	return ResponseEntity.status(status).body(err);
     }
 
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<CustomErrorDTO> forbidden(ForbiddenException e, HttpServletRequest request) {
+	HttpStatus status = HttpStatus.FORBIDDEN;
+	CustomErrorDTO err = new CustomErrorDTO(Instant.now(), status.value(), e.getMessage(), request.getRequestURI());
+	return ResponseEntity.status(status).body(err);
+    }
 }
